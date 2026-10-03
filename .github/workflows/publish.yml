@@ -39,5 +39,9 @@ jobs:
 
       - run: npm ci
 
+      # Build before publish: npm validates the "bin" path before prepublishOnly runs
+      # and would drop the gyukit command if dist/ did not exist yet.
+      - run: npm run build
+
       # prepublishOnly runs a clean build + tests; provenance is generated automatically
       - run: npm publish
