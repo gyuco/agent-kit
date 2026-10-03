@@ -1,0 +1,404 @@
+# agent-kit catalog. Suggestions are computed only from these rules + local project signals,
+# so the same project and catalog version always produce the same proposal.
+#
+# Rule conditions (all keys in a `when` must match; list values match if ANY element matches):
+#   always | dependency | file (glob, project-relative) | language | gitHost | target | bin
+#   sourceFilesMin | sourceFilesMax
+# An item is preselected when its best score >= 50. `group` items are mutually exclusive.
+# Step kinds: copy | mcp | command | instructions
+version: 1
+
+categories:
+  - { id: agents, label: Agenti }
+  - { id: skills, label: Skills }
+  - { id: mcp, label: MCP server }
+  - { id: memory, label: Memoria, group: true }
+  - { id: indexing, label: Indicizzazione codice, group: true }
+  - { id: tokens, label: Risparmio token }
+  - { id: methodology, label: Metodologia, group: true }
+
+items:
+  # ───────────────────────── agents
+  - id: voltagent-subagents
+    category: agents
+    name: VoltAgent subagents
+    description: Agenti specializzati per stack (solo quelli pertinenti)
+    homepage: https://github.com/VoltAgent/awesome-claude-code-subagents
+    license: MIT
+    suggest:
+      - { when: { sourceFilesMin: 1 }, score: 60, reason: progetto con codice sorgente }
+    options:
+      default: [code-reviewer, debugger]
+      suggest:
+        - { when: { dependency: [react, next, vue, svelte, "@angular/core"] }, pick: [frontend-developer] }
+        - { when: { dependency: [react, react-dom] }, pick: [react-specialist] }
+        - { when: { dependency: [next] }, pick: [nextjs-developer] }
+        - { when: { dependency: [vue] }, pick: [vue-expert] }
+        - { when: { dependency: ["@angular/core"] }, pick: [angular-architect] }
+        - { when: { dependency: [express, fastify, "@nestjs/core", hono, koa] }, pick: [backend-developer, node-specialist] }
+        - { when: { language: [typescript] }, pick: [typescript-pro] }
+        - { when: { language: [python] }, pick: [python-pro] }
+        - { when: { dependency: [django] }, pick: [django-developer] }
+        - { when: { dependency: [fastapi] }, pick: [fastapi-developer] }
+        - { when: { language: [go] }, pick: [golang-pro] }
+        - { when: { language: [rust] }, pick: [rust-engineer] }
+        - { when: { language: [java] }, pick: [java-architect] }
+        - { when: { language: [csharp] }, pick: [csharp-developer] }
+        - { when: { file: [Dockerfile, docker-compose.yml, compose.yaml] }, pick: [docker-expert] }
+        - { when: { file: ["*.tf"] }, pick: [terraform-engineer] }
+    install:
+      - kind: copy
+        repo: github:VoltAgent/awesome-claude-code-subagents
+        ref: main
+        agentsDir: categories
+        agentsRecursive: true
+        agentFormat: claude
+
+  # ───────────────────────── skills
+  - id: anthropic-skills
+    category: skills
+    name: Anthropic skills
+    description: Skill ufficiali Anthropic (documenti, frontend, MCP, test web)
+    homepage: https://github.com/anthropics/skills
+    license: see repo (per-skill)
+    suggest:
+      - { when: { always: true }, score: 55, reason: skill generiche utili ovunque }
+    options:
+      default: [skill-creator]
+      choices: [pdf, docx, xlsx, pptx, frontend-design, webapp-testing, mcp-builder, skill-creator, doc-coauthoring, claude-api]
+      suggest:
+        - { when: { dependency: [react, vue, svelte, next, "@angular/core"] }, pick: [frontend-design, webapp-testing] }
+        - { when: { dependency: ["@modelcontextprotocol/sdk"] }, pick: [mcp-builder] }
+        - { when: { dependency: ["@anthropic-ai/sdk", anthropic] }, pick: [claude-api] }
+    install:
+      - { kind: copy, repo: github:anthropics/skills, ref: main, skillsDir: skills }
+
+  - id: vercel-agent-skills
+    category: skills
+    name: Vercel agent skills
+    description: Best practice React/Next.js e linee guida UI
+    homepage: https://github.com/vercel-labs/agent-skills
+    license: MIT
+    suggest:
+      - { when: { dependency: [react, next] }, score: 80, reason: dipendenza react/next }
+    options:
+      default: [react-best-practices, web-design-guidelines]
+      choices: [react-best-practices, web-design-guidelines, composition-patterns, react-native-skills, react-view-transitions, deploy-to-vercel, vercel-optimize]
+      suggest:
+        - { when: { dependency: [react-native, expo] }, pick: [react-native-skills] }
+        - { when: { file: [vercel.json, .vercel] }, pick: [deploy-to-vercel, vercel-optimize] }
+    install:
+      - { kind: copy, repo: github:vercel-labs/agent-skills, ref: main, skillsDir: skills }
+
+  - id: supabase-skills
+    category: skills
+    name: Supabase skills
+    description: Uso di Supabase e best practice Postgres
+    homepage: https://github.com/supabase/agent-skills
+    license: see repo
+    suggest:
+      - { when: { file: [supabase] }, score: 85, reason: cartella supabase/ }
+      - { when: { dependency: ["@supabase/supabase-js", supabase] }, score: 80, reason: client Supabase tra le dipendenze }
+    install:
+      - { kind: copy, repo: github:supabase/agent-skills, ref: main, skillsDir: skills }
+
+  # ───────────────────────── mcp
+  - id: context7
+    category: mcp
+    name: Context7
+    description: Documentazione aggiornata delle librerie
+    homepage: https://github.com/upstash/context7
+    license: MIT
+    requires: [npx]
+    suggest:
+      - { when: { file: [package.json, pyproject.toml, requirements.txt, go.mod, Cargo.toml, pom.xml, build.gradle, Gemfile, composer.json] }, score: 70, reason: progetto con dipendenze esterne }
+    install:
+      - { kind: mcp, command: npx, args: ["-y", "@upstash/context7-mcp"] }
+
+  - id: github
+    category: mcp
+    name: GitHub MCP
+    description: Issue, PR, Actions (server remoto ufficiale)
+    homepage: https://github.com/github/github-mcp-server
+    license: MIT
+    suggest:
+      - { when: { gitHost: github.com }, score: 65, reason: remote su github.com }
+    install:
+      - kind: mcp
+        url: https://api.githubcopilot.com/mcp/
+        secrets: [{ env: GITHUB_PAT, header: Authorization, prefix: "Bearer " }]
+
+  - id: playwright
+    category: mcp
+    name: Playwright MCP
+    description: Automazione browser e test e2e
+    homepage: https://github.com/microsoft/playwright-mcp
+    license: Apache-2.0
+    requires: [npx]
+    suggest:
+      - { when: { file: ["playwright.config.*"] }, score: 90, reason: Playwright già configurato }
+      - { when: { dependency: [react, vue, svelte, next, "@angular/core", astro, nuxt] }, score: 55, reason: progetto frontend web }
+    install:
+      - { kind: mcp, command: npx, args: ["@playwright/mcp@latest"] }
+
+  - id: chrome-devtools
+    category: mcp
+    name: Chrome DevTools MCP
+    description: Console, network e performance nel browser
+    homepage: https://github.com/ChromeDevTools/chrome-devtools-mcp
+    license: Apache-2.0
+    requires: [npx]
+    suggest:
+      - { when: { dependency: [react, vue, svelte, next, "@angular/core", astro, nuxt, vite] }, score: 45, reason: progetto frontend web }
+    install:
+      - { kind: mcp, command: npx, args: ["-y", "chrome-devtools-mcp@latest"] }
+
+  - id: supabase-mcp
+    category: mcp
+    name: Supabase MCP
+    description: Database, migrazioni e log (remoto, login OAuth)
+    homepage: https://supabase.com/docs/guides/getting-started/mcp
+    license: Apache-2.0
+    suggest:
+      - { when: { file: [supabase] }, score: 75, reason: cartella supabase/ }
+    install:
+      - { kind: mcp, url: https://mcp.supabase.com/mcp }
+
+  - id: firecrawl
+    category: mcp
+    name: Firecrawl
+    description: Scraping e ricerca web (servizio a pagamento)
+    homepage: https://github.com/firecrawl/firecrawl-mcp-server
+    license: MIT
+    requires: [npx]
+    install:
+      - { kind: mcp, command: npx, args: ["-y", "firecrawl-mcp"], secrets: [{ env: FIRECRAWL_API_KEY }] }
+
+  - id: sequential-thinking
+    category: mcp
+    name: Sequential Thinking
+    description: Ragionamento strutturato passo-passo
+    homepage: https://github.com/modelcontextprotocol/servers
+    license: MIT
+    requires: [npx]
+    install:
+      - { kind: mcp, command: npx, args: ["-y", "@modelcontextprotocol/server-sequential-thinking"] }
+
+  # ───────────────────────── memory (exclusive)
+  - id: memory-files
+    category: memory
+    name: File Markdown versionati
+    description: Nessun servizio; decisioni e convenzioni in docs/ (git)
+    suggest:
+      - { when: { always: true }, score: 60, reason: zero dipendenze, versionato in git }
+    install:
+      - kind: instructions
+        text: |
+          ## Project memory
+          Durable knowledge lives in versioned Markdown, not in chat history:
+          - `docs/decisions/` — one file per architectural decision (context, decision, consequences).
+          - `docs/conventions.md` — coding conventions and gotchas discovered while working.
+          Read the relevant files before starting a task; update them when you learn something future sessions need.
+
+  - id: basic-memory
+    category: memory
+    name: Basic Memory
+    description: Grafo semantico su Markdown locale (indice SQLite)
+    homepage: https://github.com/basicmachines-co/basic-memory
+    license: AGPL-3.0
+    requires: [uvx]
+    install:
+      - { kind: mcp, command: uvx, args: ["--prerelease=allow", "basic-memory", "mcp"] }
+
+  - id: mcp-memory
+    category: memory
+    name: MCP Memory (reference)
+    description: Knowledge graph semplice in un file JSON
+    homepage: https://github.com/modelcontextprotocol/servers
+    license: MIT
+    requires: [npx]
+    install:
+      - { kind: mcp, command: npx, args: ["-y", "@modelcontextprotocol/server-memory"] }
+
+  - id: agentmemory
+    category: memory
+    name: agentmemory
+    description: Runtime locale di memoria persistente multi-agente
+    homepage: https://github.com/rohitg00/agentmemory
+    license: Apache-2.0
+    requires: [npx]
+    install:
+      - kind: command
+        run: [npx, -y, "@agentmemory/agentmemory@latest"]
+        note: Avvia l'installer interattivo di agentmemory (runtime locale su più porte).
+
+  - id: claude-mem
+    category: memory
+    name: claude-mem
+    description: Cattura e comprime le sessioni via hook, ricerca via MCP
+    homepage: https://github.com/thedotmack/claude-mem
+    license: Apache-2.0
+    compat: { only: [claude-code] }
+    requires: [npx]
+    install:
+      - { kind: command, run: [npx, claude-mem, install], note: Installer ufficiale (configura plugin e hook). }
+
+  # ───────────────────────── indexing (exclusive)
+  - id: serena
+    category: indexing
+    name: Serena
+    description: Navigazione semantica via LSP (simboli, riferimenti, edit)
+    homepage: https://github.com/oraios/serena
+    license: MIT
+    requires: [uv]
+    suggest:
+      - { when: { sourceFilesMin: 500 }, score: 70, reason: repo medio/grande }
+      - { when: { sourceFilesMin: 150 }, score: 50, reason: repo di dimensione media }
+    install:
+      - { kind: command, run: [uv, tool, install, -p, "3.13", serena-agent], note: Installa il binario serena. }
+      - { kind: mcp, command: serena, args: [start-mcp-server, --project-from-cwd] }
+
+  - id: claude-context
+    category: indexing
+    name: Claude Context
+    description: Ricerca ibrida BM25 + vettoriale (richiede embedding + Milvus/Zilliz)
+    homepage: https://github.com/zilliztech/claude-context
+    license: MIT
+    requires: [npx]
+    install:
+      - kind: mcp
+        command: npx
+        args: ["@zilliz/claude-context-mcp@latest"]
+        secrets: [{ env: OPENAI_API_KEY }, { env: MILVUS_TOKEN }, { env: MILVUS_ADDRESS }]
+
+  - id: codegraphcontext
+    category: indexing
+    name: CodeGraphContext
+    description: Grafo del codice (call graph, impatto), 22 linguaggi
+    homepage: https://github.com/CodeGraphContext/CodeGraphContext
+    license: MIT
+    requires: [pip]
+    install:
+      - { kind: command, run: [pip, install, codegraphcontext], note: Poi "cgc index ." e configura l'MCP secondo la guida. }
+
+  - id: repomix
+    category: indexing
+    name: Repomix (snapshot)
+    description: Impacchetta il repo in un file per review/altri LLM — non è un indice continuo
+    homepage: https://github.com/yamadashy/repomix
+    license: MIT
+    requires: [npx]
+    install:
+      - { kind: mcp, command: npx, args: ["-y", "repomix", "--mcp"] }
+
+  # ───────────────────────── tokens
+  - id: lean-config
+    category: tokens
+    name: Configurazione snella
+    description: Regole per non sprecare contesto (default consigliato)
+    suggest:
+      - { when: { always: true }, score: 70, reason: costo zero }
+    install:
+      - kind: instructions
+        text: |
+          ## Context hygiene
+          - Read only the files and line ranges you need; prefer search over reading whole directories.
+          - Do not paste large command outputs back; summarize them.
+          - Load skills on demand instead of front-loading instructions.
+
+  - id: rtk
+    category: tokens
+    name: RTK (Rust Token Killer)
+    description: Comprime l'output della shell (git, npm, test) prima che entri nel contesto
+    homepage: https://github.com/rtk-ai/rtk
+    license: Apache-2.0
+    suggest:
+      - { when: { bin: [rtk] }, score: 75, reason: rtk già installato }
+    install:
+      - { kind: command, run: [rtk, init], requires: [rtk], note: "Configura gli hook. Se manca il binario: brew install rtk" }
+
+  - id: context-mode
+    category: tokens
+    name: context-mode
+    description: Indicizza l'output dei tool MCP invece di riversarlo nel contesto
+    homepage: https://github.com/mksglu/context-mode
+    license: see repo
+    requires: [npx]
+    install:
+      - { kind: mcp, command: npx, args: ["-y", "context-mode"] }
+
+  - id: caveman
+    category: tokens
+    name: Caveman
+    description: Risposte telegrafiche, meno token in uscita (cambia il tono)
+    homepage: https://github.com/JuliusBrussee/caveman
+    license: Apache-2.0
+    compat: { only: [claude-code] }
+    install:
+      - { kind: command, run: [claude, plugin, marketplace, add, JuliusBrussee/caveman], requires: [claude] }
+      - { kind: command, run: [claude, plugin, install, "caveman@caveman"], requires: [claude] }
+
+  - id: ccusage
+    category: tokens
+    name: ccusage
+    description: Report dei consumi (solo misura, non riduce)
+    homepage: https://github.com/ryoppippi/ccusage
+    license: MIT
+    compat: { only: [claude-code] }
+    install:
+      - { kind: command, run: [npx, -y, ccusage@latest], note: Mostra il report; si può rilanciare quando serve. }
+
+  # ───────────────────────── methodology (exclusive)
+  - id: openspec
+    category: methodology
+    name: OpenSpec
+    description: Spec delta per ogni change, leggero — ideale su codice esistente
+    homepage: https://github.com/Fission-AI/OpenSpec
+    license: MIT
+    requires: [npx]
+    suggest:
+      - { when: { sourceFilesMin: 50 }, score: 40, reason: codice esistente (brownfield) }
+    install:
+      - { kind: command, run: [npx, -y, "@fission-ai/openspec@latest", init], note: Init interattivo di OpenSpec. }
+
+  - id: spec-kit
+    category: methodology
+    name: GitHub Spec Kit
+    description: Constitution + specify → plan → tasks → implement
+    homepage: https://github.com/github/spec-kit
+    license: MIT
+    requires: [uvx]
+    install:
+      - kind: command
+        run: [uvx, --from, "git+https://github.com/github/spec-kit.git", specify, init, --here]
+        note: Init di Spec Kit nella cartella corrente.
+
+  - id: bmad
+    category: methodology
+    name: BMAD Method
+    description: Team agile simulato (analyst, PM, architect, dev) — processo completo
+    homepage: https://github.com/bmad-code-org/BMAD-METHOD
+    license: see repo
+    suggest:
+      - { when: { sourceFilesMax: 0 }, score: 40, reason: progetto nuovo (greenfield) }
+    install:
+      - { kind: copy, repo: github:bmad-code-org/BMAD-METHOD, ref: main, skillsDir: skills }
+
+  - id: gsd
+    category: methodology
+    name: Get Shit Done
+    description: Fasi guidate da slash command, contesto pulito tra le fasi
+    homepage: https://github.com/gsd-build/get-shit-done
+    license: MIT
+    requires: [npx]
+    install:
+      - { kind: command, run: [npx, -y, get-shit-done-cc@latest], note: Installer interattivo di GSD. }
+
+  - id: superpowers
+    category: methodology
+    name: Superpowers
+    description: Skill auto-attivate (brainstorming, TDD, debugging, review)
+    homepage: https://github.com/obra/superpowers
+    license: MIT
+    install:
+      - { kind: copy, repo: github:obra/superpowers, ref: main, skillsDir: skills }

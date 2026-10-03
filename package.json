@@ -1,0 +1,52 @@
+{
+  "name": "agent-kit",
+  "version": "0.1.0",
+  "description": "Interactive installer for agents, skills, MCP servers, memory, code indexing and workflows across coding-agent CLIs (Claude Code, Codex, OpenCode, pi, Cursor, Copilot)",
+  "type": "module",
+  "bin": {
+    "agent-kit": "dist/src/cli.js"
+  },
+  "files": [
+    "dist/src",
+    "catalog",
+    "template"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "tsc",
+    "test": "tsc && node --test \"dist/test/**/*.test.js\"",
+    "dev": "tsc --watch",
+    "prepublishOnly": "rm -rf dist && npm test"
+  },
+  "dependencies": {
+    "@clack/prompts": "^1.8.1",
+    "yaml": "^2.5.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "typescript": "^5.6.0"
+  },
+  "keywords": [
+    "claude-code",
+    "codex",
+    "opencode",
+    "cursor",
+    "copilot",
+    "mcp",
+    "agent-skills",
+    "subagents",
+    "ai-coding"
+  ],
+  "license": "MIT",
+  "author": "Giuseppe Concas",
+  "homepage": "https://github.com/gyuco/agent-kit#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gyuco/agent-kit.git"
+  },
+  "bugs": {
+    "url": "https://github.com/gyuco/agent-kit/issues"
+  }
+}

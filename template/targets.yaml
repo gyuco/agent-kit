@@ -1,0 +1,22 @@
+# Each target is a coding-agent CLI described as data. No tool is hard-coded in agent-kit:
+# add an entry here (or in a project's targetDefinitions) to support a new one.
+#
+# targets:
+#   <id>:
+#     skills: <dir>                 # where skill folders go; targets sharing a dir are written once
+#     instructions: <file>          # file that receives a managed <!-- agent-kit --> block
+#     agents:                       # only if the tool supports subagents natively
+#       dir: <dir>
+#       ext: .md                    # default .md
+#       fields:                     # canonical key -> target key (name/description mapped by default)
+#         model:
+#           key: model
+#           map: { smart: <model-id>, fast: <model-id> }
+#         capabilities:
+#           key: tools
+#           format: list | csv | object
+#           map: { read: <ToolName>, search: <ToolName>, shell: <ToolName>, edit: <ToolName> }
+#       extra: { }                  # static fields added to every agent
+#       passthrough: false          # copy unmapped canonical fields as-is
+#     agentsFallback: skill         # when `agents` is absent: skill | instructions | none
+targets: {}

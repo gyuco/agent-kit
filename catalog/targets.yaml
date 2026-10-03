@@ -1,0 +1,68 @@
+# Built-in targets. Pure data: add a CLI here, no code changes needed.
+# A source repo's targets.yaml and a project's targetDefinitions can override any entry.
+#
+# Canonical agent fields: name, description, model (smart|balanced|fast), capabilities (read|edit|search|shell|web)
+# MCP formats: claude | cursor | vscode | opencode | codex-toml (see src/mcp.ts)
+# Paths verified 2026-10; CLIs change often — check before trusting blindly.
+targets:
+  claude-code:
+    label: Claude Code
+    detect: { bins: [claude], paths: [.claude, CLAUDE.md, .mcp.json] }
+    skills: .claude/skills
+    instructions: CLAUDE.md
+    mcp: { file: .mcp.json, format: claude }
+    agents:
+      dir: .claude/agents
+      fields:
+        model: { key: model, map: { smart: opus, balanced: sonnet, fast: haiku } }
+        capabilities:
+          key: tools
+          format: csv
+          map: { read: Read, edit: [Edit, Write], search: [Glob, Grep], shell: Bash, web: [WebFetch, WebSearch] }
+
+  codex:
+    label: Codex CLI
+    detect: { bins: [codex], paths: [.codex] }
+    skills: .agents/skills
+    instructions: AGENTS.md
+    mcp: { file: .codex/config.toml, format: codex-toml }
+    agentsFallback: skill
+
+  opencode:
+    label: OpenCode
+    detect: { bins: [opencode], paths: [.opencode, opencode.json, opencode.jsonc] }
+    skills: .agents/skills
+    instructions: AGENTS.md
+    mcp: { file: opencode.json, format: opencode }
+    agents:
+      dir: .opencode/agent
+      extra: { mode: subagent }
+      fields:
+        capabilities:
+          key: tools
+          format: object
+          map: { read: read, edit: [edit, write], search: [grep, glob], shell: bash, web: webfetch }
+
+  pi:
+    label: pi
+    detect: { bins: [pi], paths: [.pi] }
+    skills: .agents/skills
+    instructions: AGENTS.md
+    agentsFallback: skill
+    # no native MCP
+
+  cursor:
+    label: Cursor
+    detect: { bins: [cursor-agent, cursor], paths: [.cursor] }
+    skills: .agents/skills
+    instructions: AGENTS.md
+    mcp: { file: .cursor/mcp.json, format: cursor }
+    agentsFallback: skill
+
+  copilot:
+    label: GitHub Copilot (VS Code / CLI)
+    detect: { bins: [copilot], paths: [.github/copilot-instructions.md, .vscode] }
+    skills: .agents/skills
+    instructions: AGENTS.md
+    mcp: { file: .vscode/mcp.json, format: vscode }
+    agentsFallback: skill
