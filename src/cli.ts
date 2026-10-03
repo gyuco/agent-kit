@@ -8,9 +8,9 @@ import { wizard } from './wizard.js';
 const HELP = `agent-kit — skills, agenti, MCP e workflow per qualsiasi coding-agent CLI
 
 Uso:
-  npx agent-kit                 Wizard interattivo nella cartella corrente
-  npx agent-kit sync            Riapplica .agentkit.yaml senza domande (CI)
-  npx agent-kit list            Mostra catalogo e CLI supportate
+  npx gyukit          Wizard interattivo nella cartella corrente
+  npx gyukit sync     Riapplica .agentkit.yaml senza domande (CI)
+  npx gyukit list     Mostra catalogo e CLI supportate
 
 Opzioni:
   -y, --yes          Wizard: accetta i suggerimenti senza chiedere (gli installer esterni vengono solo mostrati)

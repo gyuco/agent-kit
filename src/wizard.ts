@@ -212,7 +212,7 @@ export async function wizard(root: string, opts: WizardOptions = {}): Promise<nu
     p.log.info(`Variabili d'ambiente richieste dagli MCP (mai scritte nei file): ${result.secrets.join(', ')}`);
   }
   if (shown.length) p.note(shown.join('\n'), 'Comandi da eseguire a mano');
-  p.outro(opts.dryRun ? 'Simulazione completata, nessun file scritto.' : 'Fatto. Per riallineare in futuro: npx agent-kit sync');
+  p.outro(opts.dryRun ? 'Simulazione completata, nessun file scritto.' : 'Fatto. Per riallineare in futuro: npx gyukit sync');
   return count('conflict') ? 2 : 0;
 }
 

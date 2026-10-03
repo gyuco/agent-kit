@@ -109,7 +109,7 @@ export function sync(root: string, opts: SyncOptions = {}): SyncResult {
   const { sources, inline, commands } = collect(cfg, catalog);
 
   const targetIds = opts.targets ?? cfg.targets;
-  if (!targetIds.length) throw new Error('No targets selected. Run "npx agent-kit" or add "targets" to .agentkit.yaml.');
+  if (!targetIds.length) throw new Error('No targets selected. Run "npx gyukit" or add "targets" to .agentkit.yaml.');
 
   const fetched: Array<ReturnType<typeof fetchSource>> = [];
   try {

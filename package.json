@@ -1,10 +1,10 @@
 {
-  "name": "agent-kit",
+  "name": "gyukit",
   "version": "0.1.1",
   "description": "Interactive installer for agents, skills, MCP servers, memory, code indexing and workflows across coding-agent CLIs (Claude Code, Codex, OpenCode, pi, Cursor, Copilot)",
   "type": "module",
   "bin": {
-    "agent-kit": "dist/src/cli.js"
+    "gyukit": "dist/src/cli.js"
   },
   "files": [
     "dist/src",

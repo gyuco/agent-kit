@@ -5,10 +5,10 @@ token-saving tools and workflows (BMAD, Spec Kit, OpenSpec…) for **any** codin
 Claude Code, Codex, OpenCode, pi, Cursor, GitHub Copilot — or any other you describe in YAML.
 
 ```bash
-npx agent-kit            # wizard in the current directory
-npx agent-kit --yes      # accept suggestions, no prompts
-npx agent-kit sync       # re-apply .agentkit.yaml (CI), never prompts
-npx agent-kit list       # show catalog and supported CLIs
+npx gyukit          # wizard in the current directory
+npx gyukit --yes    # accept suggestions, no prompts
+npx gyukit sync     # re-apply .agentkit.yaml (CI), never prompts
+npx gyukit list     # show catalog and supported CLIs
 ```
 
 ## How suggestions work (deterministic)

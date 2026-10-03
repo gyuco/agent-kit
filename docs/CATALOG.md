@@ -1,6 +1,6 @@
 # Catalogo opzioni — bozza v0 (ricerca 2026-10-03)
 
-Base dati per il wizard interattivo `npx agent-kit`. Ogni voce diventerà un record in `catalog.yaml`.
+Base dati per il wizard interattivo `npx gyukit`. Ogni voce diventerà un record in `catalog.yaml`.
 Le colonne **Install** e **Compat** guidano cosa il wizard può fare automaticamente; i comandi marcati ⚠️ vanno verificati prima di codificarli.
 
 Legenda compatibilità: 🌐 qualsiasi CLI (MCP / Agent Skills / AGENTS.md) · 🟠 solo alcuni CLI · 🔵 solo Claude Code (plugin/hook)
@@ -114,7 +114,7 @@ Nessun LLM nel wizard. Stesso progetto + stessa versione del catalogo ⇒ stessi
    - Già installato: `.bmad-core/`, `.specify/`, `openspec/`, `.mcp.json`, ecc. (per non proporre doppioni).
 2. **Regole** per ogni voce del catalogo: `when` (condizioni sui segnali) → `score`. Pre-selezionate le voci con score ≥ soglia; ordinamento per `score desc, id asc`.
 3. **Gruppi esclusivi** (memoria, indicizzazione, metodologia): radio button, preselezione = score più alto, poi `none`.
-4. **Output riproducibile**: le scelte vengono salvate in `.agentkit.yaml` → `npx agent-kit sync` non interattivo (CI) ricrea lo stesso stato. `--yes` accetta i suggerimenti senza prompt.
+4. **Output riproducibile**: le scelte vengono salvate in `.agentkit.yaml` → `npx gyukit sync` non interattivo (CI) ricrea lo stesso stato. `--yes` accetta i suggerimenti senza prompt.
 5. **Azioni a rischio** (installer esterni, `uvx`/`pip`, servizi cloud, licenze restrittive) → mai preselezionate, sempre con conferma separata e un riepilogo prima di eseguire.
 
 ### Schema di una voce (`catalog.yaml`)
