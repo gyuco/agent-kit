@@ -58,3 +58,14 @@ npm install
 npm test
 node dist/src/cli.js --dry-run --cwd /some/project
 ```
+
+## Releasing
+
+Publishing runs in GitHub Actions via npm trusted publishing (OIDC, automatic provenance, no npm token stored).
+
+```bash
+npm version patch        # or minor / major: bumps package.json, commits, tags vX.Y.Z
+git push --follow-tags   # the tag triggers .github/workflows/publish.yml
+```
+
+The workflow fails if the tag does not match `package.json`, and `prepublishOnly` rebuilds and runs the tests before publishing.
