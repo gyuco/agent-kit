@@ -1,6 +1,6 @@
 {
   "name": "agent-kit",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Interactive installer for agents, skills, MCP servers, memory, code indexing and workflows across coding-agent CLIs (Claude Code, Codex, OpenCode, pi, Cursor, Copilot)",
   "type": "module",
   "bin": {
