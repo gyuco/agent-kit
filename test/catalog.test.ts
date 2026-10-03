@@ -201,7 +201,7 @@ test('sync installs catalog MCP + instructions into each selected CLI', () => {
 });
 
 test('compat.only items are skipped for other CLIs and commands surfaced, not run', () => {
-  put('.agentkit.yaml', YAML.stringify({ targets: ['codex'], catalog: [{ id: 'caveman' }, { id: 'openspec' }] }));
+  put('.agentkit.yaml', YAML.stringify({ targets: ['codex'], catalog: [{ id: 'caveman' }, { id: 'agentmemory' }] }));
   const r = sync(root);
-  assert.deepEqual(r.commands.map((c) => c.item.id), ['openspec']);
+  assert.deepEqual(r.commands.map((c) => c.item.id), ['agentmemory']);
 });

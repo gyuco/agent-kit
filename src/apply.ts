@@ -61,6 +61,18 @@ export function applyPlan(
     writeFileSync(abs, data);
   };
 
+  // Starter docs: written once if missing, then they belong to the user (not in the lockfile).
+  for (const [rel, content] of plan.scaffold) {
+    if (plan.files.has(rel)) throw new Error(`Template ${rel} collides with a managed file`);
+    const abs = safeJoin(root, rel);
+    if (existsSync(abs)) {
+      actions.push({ kind: 'unchanged', path: rel, note: 'template, already present' });
+      continue;
+    }
+    write(abs, content);
+    actions.push({ kind: 'write', path: rel, note: 'template, yours from now on' });
+  }
+
   for (const [rel, content] of plan.files) {
     const abs = safeJoin(root, rel);
     const hash = sha256(content);

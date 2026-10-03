@@ -139,6 +139,8 @@ export interface Plan {
   blocks: Map<string, string>;
   /** Project-relative MCP config file -> servers to own in it. */
   mcp: Map<string, { format: McpFormat; servers: McpServer[] }>;
+  /** Starter documents written only if missing, then owned by the user (never tracked or pruned). */
+  scaffold: Map<string, Buffer>;
 }
 
 export interface Lock {

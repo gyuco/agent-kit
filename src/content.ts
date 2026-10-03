@@ -11,7 +11,7 @@ function listDir(dir: string): string[] {
 }
 
 /** Regular files only; symlinks are skipped so a source repo can't point at files outside itself. */
-function walkFiles(dir: string, root = dir): string[] {
+export function walkFiles(dir: string, root = dir): string[] {
   const out: string[] = [];
   for (const entry of listDir(dir)) {
     const abs = join(dir, entry);

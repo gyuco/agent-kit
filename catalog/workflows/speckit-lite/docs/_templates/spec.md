@@ -1,0 +1,6 @@
+# Feature: …
+## User scenarios
+## Functional requirements
+- FR-1: …
+## Success criteria
+## Clarifications

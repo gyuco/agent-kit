@@ -32,6 +32,22 @@ languages by file count, git remote host, marker files — and evaluates fixed r
 | `instructions` | Section in a managed block of `AGENTS.md` / `CLAUDE.md` |
 | `command` | External installer (BMAD-style tools, `uv tool install`…): the wizard asks to **run it now, show it, or skip**. `--yes` and `sync` only show it |
 
+## Built-in workflows (no external installs)
+
+Exactly one methodology per project, all shipped inside the package (`catalog/workflows/`):
+
+| Id | What you get |
+|---|---|
+| `gyukit-flow` *(default)* | Agents **analyst → architect → planner → coder → reviewer**; `docs/PRD.md`, `docs/architecture.md` + ADRs, `docs/epics/`, `docs/stories/`; gates on `status: approved`; skills `quick-change` (small fixes) and `autopilot` (works toward a goal, stops on success or after N iterations without progress) |
+| `bmad-lite` | Personas analyst, PM, architect, scrum master, dev, QA; brief → PRD → architecture → one story at a time |
+| `speckit-lite` | Constitution + specify → plan → tasks → implement in `specs/` |
+| `openspec-lite` | Change proposals with spec deltas in `openspec/` (good for existing code) |
+| `gsd-lite` | Phases discuss → plan → execute → verify in `.planning/` |
+| `superpowers-lite` | Discipline skills: brainstorming, plans, TDD, debugging, verification, review |
+
+Agents become native subagents where the CLI supports them, skills elsewhere. Starter documents are created
+only if missing and are yours afterwards: never overwritten (not even with `--force`), tracked or removed.
+
 ## Files in your project
 
 - `.agentkit.yaml` — your choices (commit it).

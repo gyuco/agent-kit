@@ -6,6 +6,16 @@ import type { Include, Layout, McpServer, Secret, TargetSpec } from './types.js'
 /** Bundled with the package, so a given agent-kit version always ships the same catalog. */
 export const CATALOG_DIR = fileURLToPath(new URL('../../catalog/', import.meta.url));
 
+const PKG_VERSION: string = JSON.parse(readFileSync(new URL('../../package.json', import.meta.url), 'utf8')).version;
+
+/** `builtin:<path>` refers to content shipped inside the package, so it needs no network or install. */
+export function resolveBuiltin(ref: string): { dir: string; commit: string } | null {
+  if (!ref.startsWith('builtin:')) return null;
+  const rel = ref.slice('builtin:'.length);
+  if (rel.split('/').includes('..')) throw new Error(`Invalid builtin path: ${ref}`);
+  return { dir: CATALOG_DIR + rel, commit: `builtin@${PKG_VERSION}` };
+}
+
 export interface Condition {
   always?: boolean;
   dependency?: string[];
@@ -28,7 +38,9 @@ export type Step =
   | ({ kind: 'copy'; repo: string; ref?: string } & Layout)
   | ({ kind: 'mcp' } & Omit<McpServer, 'id' | 'only'> & { id?: string; secrets?: Secret[] })
   | { kind: 'command'; run: string[]; requires?: string[]; note?: string }
-  | { kind: 'instructions'; text: string };
+  | { kind: 'instructions'; text: string }
+  /** Copy starter docs into the project once; existing files are never touched. */
+  | { kind: 'scaffold'; from: string; to: string };
 
 export interface CatalogItem {
   id: string;
@@ -96,6 +108,6 @@ export function copyInclude(item: CatalogItem, step: Layout, options: string[] |
   return {
     skills: step.skillsDir ? picked : [],
     agents: step.agentsDir ? picked : [],
-    instructions: [],
+    instructions: step.instructionsDir ? undefined : [],
   };
 }

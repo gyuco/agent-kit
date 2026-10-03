@@ -348,57 +348,60 @@ items:
     install:
       - { kind: command, run: [npx, -y, ccusage@latest], note: Mostra il report; si può rilanciare quando serve. }
 
-  # ───────────────────────── methodology (exclusive)
-  - id: openspec
+  # ───────────────────────── methodology (exclusive) — all built-in, no external installers
+  - id: gyukit-flow
     category: methodology
-    name: OpenSpec
-    description: Spec delta per ogni change, leggero — ideale su codice esistente
-    homepage: https://github.com/Fission-AI/OpenSpec
+    name: gyukit workflow
+    description: analyst → architect → planner → coder → reviewer, con PRD/architettura/epics/stories in docs/, percorso rapido, TDD e autopilot a goal
     license: MIT
-    requires: [npx]
+    suggest:
+      - { when: { always: true }, score: 60, reason: workflow predefinito di gyukit }
+    install:
+      - { kind: copy, repo: "builtin:workflows/gyukit", skillsDir: skills, agentsDir: agents, instructionsDir: instructions }
+      - { kind: scaffold, from: "builtin:workflows/gyukit/docs", to: docs }
+
+  - id: bmad-lite
+    category: methodology
+    name: BMAD lite
+    description: Persona agili (analyst, PM, architect, SM, dev, QA) con brief → PRD → architettura → story una alla volta
+    license: MIT
+    install:
+      - { kind: copy, repo: "builtin:workflows/bmad-lite", agentsDir: agents, instructionsDir: instructions }
+      - { kind: scaffold, from: "builtin:workflows/bmad-lite/docs", to: docs }
+
+  - id: speckit-lite
+    category: methodology
+    name: Spec Kit lite
+    description: Constitution + specify → plan → tasks → implement, in specs/
+    license: MIT
+    install:
+      - { kind: copy, repo: "builtin:workflows/speckit-lite", skillsDir: skills, instructionsDir: instructions }
+      - { kind: scaffold, from: "builtin:workflows/speckit-lite/docs", to: specs }
+
+  - id: openspec-lite
+    category: methodology
+    name: OpenSpec lite
+    description: Change proposal con delta delle spec — leggero, ideale su codice esistente
+    license: MIT
     suggest:
       - { when: { sourceFilesMin: 50 }, score: 40, reason: codice esistente (brownfield) }
     install:
-      - { kind: command, run: [npx, -y, "@fission-ai/openspec@latest", init], note: Init interattivo di OpenSpec. }
+      - { kind: copy, repo: "builtin:workflows/openspec-lite", skillsDir: skills, instructionsDir: instructions }
+      - { kind: scaffold, from: "builtin:workflows/openspec-lite/docs", to: openspec }
 
-  - id: spec-kit
+  - id: gsd-lite
     category: methodology
-    name: GitHub Spec Kit
-    description: Constitution + specify → plan → tasks → implement
-    homepage: https://github.com/github/spec-kit
-    license: MIT
-    requires: [uvx]
-    install:
-      - kind: command
-        run: [uvx, --from, "git+https://github.com/github/spec-kit.git", specify, init, --here]
-        note: Init di Spec Kit nella cartella corrente.
-
-  - id: bmad
-    category: methodology
-    name: BMAD Method
-    description: Team agile simulato (analyst, PM, architect, dev) — processo completo
-    homepage: https://github.com/bmad-code-org/BMAD-METHOD
-    license: see repo
-    suggest:
-      - { when: { sourceFilesMax: 0 }, score: 40, reason: progetto nuovo (greenfield) }
-    install:
-      - { kind: copy, repo: github:bmad-code-org/BMAD-METHOD, ref: main, skillsDir: skills }
-
-  - id: gsd
-    category: methodology
-    name: Get Shit Done
-    description: Fasi guidate da slash command, contesto pulito tra le fasi
-    homepage: https://github.com/gsd-build/get-shit-done
-    license: MIT
-    requires: [npx]
-    install:
-      - { kind: command, run: [npx, -y, get-shit-done-cc@latest], note: Installer interattivo di GSD. }
-
-  - id: superpowers
-    category: methodology
-    name: Superpowers
-    description: Skill auto-attivate (brainstorming, TDD, debugging, review)
-    homepage: https://github.com/obra/superpowers
+    name: GSD lite
+    description: Fasi discuss → plan → execute → verify, ogni piano eseguito con contesto pulito
     license: MIT
     install:
-      - { kind: copy, repo: github:obra/superpowers, ref: main, skillsDir: skills }
+      - { kind: copy, repo: "builtin:workflows/gsd-lite", skillsDir: skills, instructionsDir: instructions }
+      - { kind: scaffold, from: "builtin:workflows/gsd-lite/docs", to: .planning }
+
+  - id: superpowers-lite
+    category: methodology
+    name: Superpowers lite
+    description: Skill di disciplina (brainstorming, piani, TDD, debugging, verifica, review) senza processo a fasi
+    license: MIT
+    install:
+      - { kind: copy, repo: "builtin:workflows/superpowers-lite", skillsDir: skills, instructionsDir: instructions }

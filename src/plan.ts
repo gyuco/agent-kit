@@ -38,7 +38,7 @@ class PlanBuilder {
   build(): Plan {
     const blocks = new Map<string, string>();
     for (const [file, parts] of this.blockParts) blocks.set(file, parts.join('\n\n'));
-    return { files: this.files, blocks, mcp: this.mcp };
+    return { files: this.files, blocks, mcp: this.mcp, scaffold: new Map() };
   }
 }
 

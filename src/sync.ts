@@ -1,9 +1,9 @@
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
-import { join } from 'node:path';
+import { join, posix } from 'node:path';
 import { applyPlan, type Action } from './apply.js';
-import { copyInclude, loadBuiltinTargets, loadCatalog, type Catalog, type CatalogItem, type Step } from './catalog.js';
+import { copyInclude, loadBuiltinTargets, loadCatalog, resolveBuiltin, type Catalog, type CatalogItem, type Step } from './catalog.js';
 import { LOCK_FILE, loadProjectConfig, ownSources, readSourceTargets, resolveTargets } from './config.js';
-import { DEFAULT_LAYOUT, emptyContent, loadContent, mergeContent } from './content.js';
+import { DEFAULT_LAYOUT, emptyContent, loadContent, mergeContent, walkFiles } from './content.js';
 import { buildPlan } from './plan.js';
 import { fetchSource } from './source.js';
 import type { Include, Layout, Lock, ProjectConfig, TargetSpec } from './types.js';
@@ -42,6 +42,8 @@ interface SourceReq {
   include: Include;
   layout: Layout;
   only?: string[];
+  /** Content shipped inside the package: no fetch, versioned with agent-kit itself. */
+  builtin?: { dir: string; commit: string };
 }
 
 export function readLock(root: string): Lock | null {
@@ -65,6 +67,7 @@ function collect(cfg: ProjectConfig, catalog: Catalog) {
   }));
   const inline = emptyContent();
   const commands: CommandStep[] = [];
+  const scaffolds: Array<{ dir: string; to: string }> = [];
 
   for (const sel of cfg.catalog ?? []) {
     const item = catalog.items.find((i) => i.id === sel.id);
@@ -82,7 +85,14 @@ function collect(cfg: ProjectConfig, catalog: Catalog) {
             include: copyInclude(item, layout, sel.options),
             layout,
             only,
+            builtin: resolveBuiltin(repo) ?? undefined,
           });
+          break;
+        }
+        case 'scaffold': {
+          const b = resolveBuiltin(step.from);
+          if (!b) throw new Error(`${item.id}: scaffold source must be builtin:, got ${step.from}`);
+          scaffolds.push({ dir: b.dir, to: step.to });
           break;
         }
         case 'mcp': {
@@ -99,14 +109,14 @@ function collect(cfg: ProjectConfig, catalog: Catalog) {
       }
     }
   }
-  return { sources, inline, commands };
+  return { sources, inline, commands, scaffolds };
 }
 
 export function sync(root: string, opts: SyncOptions = {}): SyncResult {
   const cfg = opts.config ?? loadProjectConfig(root);
   const catalog = loadCatalog();
   const prev = readLock(root);
-  const { sources, inline, commands } = collect(cfg, catalog);
+  const { sources, inline, commands, scaffolds } = collect(cfg, catalog);
 
   const targetIds = opts.targets ?? cfg.targets;
   if (!targetIds.length) throw new Error('No targets selected. Run "npx gyukit" or add "targets" to .agentkit.yaml.');
@@ -120,12 +130,12 @@ export function sync(root: string, opts: SyncOptions = {}): SyncResult {
 
     for (const s of sources) {
       let ref = s.ref;
-      if (opts.frozen) {
+      if (opts.frozen && !s.builtin) {
         const pinned = prev?.commits[s.key];
         if (!pinned) throw new Error(`--frozen: no locked commit for ${s.key}`);
         if (pinned !== 'local') ref = pinned;
       }
-      const src = fetchSource(s.source, ref, root);
+      const src = s.builtin ? { ...s.builtin, cleanup: () => {} } : fetchSource(s.source, ref, root);
       fetched.push(src);
       commits[s.key] = src.commit;
       const loaded = loadContent(src.dir, s.include, s.layout);
@@ -138,6 +148,9 @@ export function sync(root: string, opts: SyncOptions = {}): SyncResult {
     const allTargets = { ...loadBuiltinTargets(), ...sourceTargets, ...(cfg.targetDefinitions ?? {}) };
     const targets = resolveTargets(allTargets, targetIds);
     const plan = buildPlan(content, targets);
+    for (const sc of scaffolds) {
+      for (const f of walkFiles(sc.dir)) plan.scaffold.set(posix.join(sc.to, f.split('\\').join('/')), readFileSync(join(sc.dir, f)));
+    }
     const { actions, files, blocks, mcp } = applyPlan(root, plan, prev, opts);
 
     if (!opts.dryRun) {
