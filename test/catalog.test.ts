@@ -72,13 +72,13 @@ test('proposal is deterministic and rule-driven', () => {
   assert.deepEqual(a, b);
 
   const ids = a.map((x) => x.id);
-  for (const id of ['vercel-agent-skills', 'playwright', 'github', 'context7', 'memory-files', 'lean-config']) {
+  for (const id of ['gyukit-flow', 'vercel-agent-skills', 'playwright', 'github', 'context7', 'memory-files', 'lean-config']) {
     assert.ok(ids.includes(id), `expected ${id} in ${ids}`);
   }
   assert.ok(!ids.includes('supabase-skills'));
   assert.ok(!ids.includes('serena'), 'small repo: no indexer');
-  const volt = a.find((x) => x.id === 'voltagent-subagents')!;
-  assert.deepEqual(volt.options, ['code-reviewer', 'debugger', 'frontend-developer', 'nextjs-developer', 'python-pro', 'react-specialist', 'typescript-pro']);
+  const flow = a.find((x) => x.id === 'gyukit-flow')!;
+  assert.deepEqual(flow.options, ['analyst', 'architect', 'planner', 'coder', 'reviewer']);
 });
 
 test('exclusive groups keep at most one preselected item', () => {

@@ -76,13 +76,13 @@ function collect(cfg: ProjectConfig, catalog: Catalog) {
     for (const step of item.install) {
       switch (step.kind) {
         case 'copy': {
-          const { kind: _k, repo, ref, ...layout } = step;
+          const { kind: _k, repo, ref, select, ...layout } = step;
           sources.push({
             key: `${repo}@${ref ?? 'HEAD'}`,
             origin: `catalog:${item.id}`,
             source: repo,
             ref,
-            include: copyInclude(item, layout, sel.options),
+            include: copyInclude(item, layout, sel.options, select),
             layout,
             only,
             builtin: resolveBuiltin(repo) ?? undefined,

@@ -9,51 +9,14 @@
 version: 1
 
 categories:
-  - { id: agents, label: Agenti }
+  - { id: methodology, label: Workflow, group: true }
   - { id: skills, label: Skills }
   - { id: mcp, label: MCP server }
   - { id: memory, label: Memoria, group: true }
   - { id: indexing, label: Indicizzazione codice, group: true }
   - { id: tokens, label: Risparmio token }
-  - { id: methodology, label: Metodologia, group: true }
 
 items:
-  # ───────────────────────── agents
-  - id: voltagent-subagents
-    category: agents
-    name: VoltAgent subagents
-    description: Agenti specializzati per stack (solo quelli pertinenti)
-    homepage: https://github.com/VoltAgent/awesome-claude-code-subagents
-    license: MIT
-    suggest:
-      - { when: { sourceFilesMin: 1 }, score: 60, reason: progetto con codice sorgente }
-    options:
-      default: [code-reviewer, debugger]
-      suggest:
-        - { when: { dependency: [react, next, vue, svelte, "@angular/core"] }, pick: [frontend-developer] }
-        - { when: { dependency: [react, react-dom] }, pick: [react-specialist] }
-        - { when: { dependency: [next] }, pick: [nextjs-developer] }
-        - { when: { dependency: [vue] }, pick: [vue-expert] }
-        - { when: { dependency: ["@angular/core"] }, pick: [angular-architect] }
-        - { when: { dependency: [express, fastify, "@nestjs/core", hono, koa] }, pick: [backend-developer, node-specialist] }
-        - { when: { language: [typescript] }, pick: [typescript-pro] }
-        - { when: { language: [python] }, pick: [python-pro] }
-        - { when: { dependency: [django] }, pick: [django-developer] }
-        - { when: { dependency: [fastapi] }, pick: [fastapi-developer] }
-        - { when: { language: [go] }, pick: [golang-pro] }
-        - { when: { language: [rust] }, pick: [rust-engineer] }
-        - { when: { language: [java] }, pick: [java-architect] }
-        - { when: { language: [csharp] }, pick: [csharp-developer] }
-        - { when: { file: [Dockerfile, docker-compose.yml, compose.yaml] }, pick: [docker-expert] }
-        - { when: { file: ["*.tf"] }, pick: [terraform-engineer] }
-    install:
-      - kind: copy
-        repo: github:VoltAgent/awesome-claude-code-subagents
-        ref: main
-        agentsDir: categories
-        agentsRecursive: true
-        agentFormat: claude
-
   # ───────────────────────── skills
   - id: anthropic-skills
     category: skills
@@ -356,8 +319,12 @@ items:
     license: MIT
     suggest:
       - { when: { always: true }, score: 60, reason: workflow predefinito di gyukit }
+    options:
+      label: Quali agenti del workflow?
+      choices: [analyst, architect, planner, coder, reviewer]
+      default: [analyst, architect, planner, coder, reviewer]
     install:
-      - { kind: copy, repo: "builtin:workflows/gyukit", skillsDir: skills, agentsDir: agents, instructionsDir: instructions }
+      - { kind: copy, repo: "builtin:workflows/gyukit", select: agents, skillsDir: skills, agentsDir: agents, instructionsDir: instructions }
       - { kind: scaffold, from: "builtin:workflows/gyukit/docs", to: docs }
 
   - id: bmad-lite
@@ -365,8 +332,12 @@ items:
     name: BMAD lite
     description: Persona agili (analyst, PM, architect, SM, dev, QA) con brief → PRD → architettura → story una alla volta
     license: MIT
+    options:
+      label: Quali agenti del workflow?
+      choices: [bmad-analyst, bmad-pm, bmad-architect, bmad-sm, bmad-dev, bmad-qa]
+      default: [bmad-analyst, bmad-pm, bmad-architect, bmad-sm, bmad-dev, bmad-qa]
     install:
-      - { kind: copy, repo: "builtin:workflows/bmad-lite", agentsDir: agents, instructionsDir: instructions }
+      - { kind: copy, repo: "builtin:workflows/bmad-lite", select: agents, agentsDir: agents, instructionsDir: instructions }
       - { kind: scaffold, from: "builtin:workflows/bmad-lite/docs", to: docs }
 
   - id: speckit-lite

@@ -35,7 +35,8 @@ export interface Rule {
 }
 
 export type Step =
-  | ({ kind: 'copy'; repo: string; ref?: string } & Layout)
+  /** `select` limits the chosen options to one kind (e.g. pick agents, always install all skills). */
+  | ({ kind: 'copy'; repo: string; ref?: string; select?: 'agents' | 'skills' } & Layout)
   | ({ kind: 'mcp' } & Omit<McpServer, 'id' | 'only'> & { id?: string; secrets?: Secret[] })
   | { kind: 'command'; run: string[]; requires?: string[]; note?: string }
   | { kind: 'instructions'; text: string }
@@ -53,6 +54,8 @@ export interface CatalogItem {
   compat?: { only?: string[] };
   suggest?: Rule[];
   options?: {
+    /** Prompt shown when choosing the options. */
+    label?: string;
     default?: string[];
     choices?: string[];
     suggest?: Array<{ when: Condition; pick: string[] }>;
@@ -103,11 +106,17 @@ export function optionChoices(item: CatalogItem): string[] {
 }
 
 /** What a copy step installs, given the chosen options. */
-export function copyInclude(item: CatalogItem, step: Layout, options: string[] | undefined): Include {
+export function copyInclude(
+  item: CatalogItem,
+  step: Layout,
+  options: string[] | undefined,
+  select?: 'agents' | 'skills',
+): Include {
   const picked = item.options ? options ?? item.options.default ?? [] : undefined;
+  const pick = (kind: 'agents' | 'skills') => (!select || select === kind ? picked : undefined);
   return {
-    skills: step.skillsDir ? picked : [],
-    agents: step.agentsDir ? picked : [],
+    skills: step.skillsDir ? pick('skills') : [],
+    agents: step.agentsDir ? pick('agents') : [],
     instructions: step.instructionsDir ? undefined : [],
   };
 }

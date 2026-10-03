@@ -154,7 +154,7 @@ export async function wizard(root: string, opts: WizardOptions = {}): Promise<nu
         }
         const picked = bail(
           await p.multiselect({
-            message: `${pr.item.name}: quali elementi?`,
+            message: pr.item.options.label ?? `${pr.item.name}: quali elementi?`,
             options: optionChoices(pr.item).map((c) => ({ value: c, label: c })),
             initialValues: pr.options,
             required: false,

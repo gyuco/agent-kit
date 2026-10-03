@@ -105,6 +105,19 @@ test('starter docs are never overwritten, tracked or pruned', () => {
   assert.doesNotMatch(read('AGENTS.md'), /gyukit/);
 });
 
+test('workflow is asked first and only the chosen agents are installed', () => {
+  const cats = loadCatalog().categories.map((c) => c.id);
+  assert.equal(cats[0], 'methodology');
+  assert.ok(!loadCatalog().items.some((i) => i.id === 'voltagent-subagents'));
+
+  configure([{ id: 'gyukit-flow', options: ['analyst', 'coder'] }], ['claude-code']);
+  sync(root);
+  assert.deepEqual(readdirSync(join(root, '.claude/agents')).sort(), ['analyst.md', 'coder.md']);
+  // workflow skills are always installed
+  assert.ok(existsSync(join(root, '.claude/skills/autopilot/SKILL.md')));
+  assert.ok(existsSync(join(root, '.claude/skills/quick-change/SKILL.md')));
+});
+
 test('builtin sources work with --frozen', () => {
   configure([{ id: 'gyukit-flow' }]);
   sync(root);
